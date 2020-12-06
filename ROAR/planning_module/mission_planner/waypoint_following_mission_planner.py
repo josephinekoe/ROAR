@@ -44,8 +44,8 @@ class WaypointFollowingMissionPlanner(MissionPlanner):
         """
         mission_plan = deque()
         raw_path: List[List[float]] = self._read_data_file()
-        for coord in raw_path:
-            if len(coord) == 3 or len(coord) == 6:
+        for i, coord in enumerate(raw_path):
+            if (i % 40 == 0) and(len(coord) == 3 or len(coord) == 6):
                 mission_plan.append(self._raw_coord_to_transform(coord))
         self.logger.debug(f"Computed Mission path of length [{len(mission_plan)}]")
         return mission_plan
