@@ -99,7 +99,7 @@ class SimpleWaypointFollowingLocalPlanner(LocalPlanner):
         self.set_closeness_threhold(self.closeness_threshold_config)
 
         curr_vel = self.agent.vehicle.velocity
-        timestep = 0.01
+        timestep = 0.05
         future_point = vehicle_transform.location + Location(x=curr_vel.x * timestep, y=curr_vel.y * timestep, z=0)
 
         # get current waypoint
@@ -109,7 +109,7 @@ class SimpleWaypointFollowingLocalPlanner(LocalPlanner):
                 self.logger.info("Destination reached")
                 return VehicleControl()
             waypoint: Transform = self.way_points_queue[0]
-            curr_dist = vehicle_transform.location.distance(waypoint.location)
+            curr_dist = future_point.distance(waypoint.location)
             if curr_dist < curr_closest_dist:
                 # if i find a waypoint that is closer to me than before
                 # note that i will always enter here to start the calculation for curr_closest_dist

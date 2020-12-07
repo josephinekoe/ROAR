@@ -20,7 +20,7 @@ def display_npy(filename, point_cloud=False, obj=True):
     filename : str
         The name of the file to display
     """
-    bound = 20#400
+    bound = 400
     ts = []
     xs = []
     ys = []
@@ -73,7 +73,7 @@ def display_npy(filename, point_cloud=False, obj=True):
         else:
             ax.set_ylim3d(bound, 3 * bound)
         ax.set_zlabel('y')
-        ax.set_zlim3d(-bound, bound)
+        ax.set_zlim3d(-20, 20)
         xyz = np.reshape(npy, (-1, 3))
         sct, = ax.plot(xyz[:,0], xyz[:,2], -xyz[:,1], 'o', markersize=0.2, color='b')
 
