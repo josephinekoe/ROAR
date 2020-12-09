@@ -1,12 +1,11 @@
-import logging
+import logging, warnings
 import numpy as np
-import warnings
-from pathlib import Path
 from ROAR_Sim.configurations.configuration import Configuration as CarlaConfig
-from ROAR_Sim.carla_client.carla_runner import CarlaRunner
-from ROAR.agent_module.pure_pursuit_agent import PurePursuitAgent
-# from ROAR.agent_module.point_cloud_agent import PointCloudAgent
 from ROAR.configurations.configuration import Configuration as AgentConfig
+from pathlib import Path
+from ROAR_Sim.carla_client.carla_runner import CarlaRunner
+from ROAR.agent_module.pure_pursuit_agent \
+    import PurePursuitAgent
 from ROAR.agent_module.special_agents.waypoint_generating_agent import WaypointGeneratigAgent
 from ROAR.agent_module.pid_agent import PIDAgent
 
