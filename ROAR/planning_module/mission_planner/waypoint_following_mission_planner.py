@@ -7,8 +7,6 @@ from typing import List, Optional
 from ROAR.utilities_module.data_structures_models import Transform, Location,Rotation
 from collections import deque
 from ROAR.agent_module.agent import Agent
-import scipy
-from scipy import stats
 import numpy as np
 
 class WaypointFollowingMissionPlanner(MissionPlanner):
@@ -48,12 +46,19 @@ class WaypointFollowingMissionPlanner(MissionPlanner):
         raw_path: List[List[float]] = self._read_data_file()
         raw_path = np.array(raw_path)
         for i, coord in enumerate(raw_path):
-            if (i == 0) or (i == len(raw_path) - 1) or ((i % 100 == 0) and(len(coord) == 3 or len(coord) == 6)):
-                lower_bound = max(i - 50, 0)
-                upper_bound = min(i + 50, len(raw_path))
-                slope, intercept, r_value, p_value, std_err = scipy.stats.linregress(raw_path[lower_bound:upper_bound, 0], raw_path[lower_bound:upper_bound, 1])
-                self.logger.debug(f"R2 [{r_value}]")
-                mission_plan.append(self._raw_coord_to_transform(coord))
+            lower_bound = max(0, i - 200)
+            upper_bound = min(len(raw_path) - 1, i + 200)
+            if ((len(coord) == 3 or len(coord) == 6)) and \
+               ((i == 0) or \
+               (i == len(raw_path) - 1) or \
+               (i % 100 == 50) or \
+               (np.mean(raw_path[lower_bound:upper_bound, 2]) > 8 and np.mean(raw_path[lower_bound:upper_bound, 2]) < 22)):
+               # ((i % 500 == 0) ) or \
+               # ((i % 100 == 50) and (np.mean(raw_path[lower_bound:upper_bound, 2]) < 10 or np.mean(raw_path[lower_bound:upper_bound, 2]) > 20))):
+                if (np.mean(raw_path[lower_bound:upper_bound, 2]) > 8 and np.mean(raw_path[lower_bound:upper_bound, 2]) < 22):
+                    mission_plan.append(self._raw_coord_to_transform([coord[0], coord[1], 14, coord[3], coord[4], coord[5]]))
+                else:
+                    mission_plan.append(self._raw_coord_to_transform(coord))
         self.logger.debug(f"Computed Mission path of length [{len(mission_plan)}]")
         return mission_plan
 

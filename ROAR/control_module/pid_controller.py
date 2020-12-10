@@ -24,19 +24,38 @@ class PIDController(Controller):
         self.long_pid_controller = LongPIDController(agent=agent,
                                                      throttle_boundary=throttle_boundary,
                                                      max_speed=self.max_speed, config=self.config["longitudinal_controller"])
+        self.long_limited_pid_controller = LongPIDController(agent=agent,
+                                                             throttle_boundary=throttle_boundary,
+                                                             max_speed=120, config=self.config["longitudinal_controller"])
         self.lat_pid_controller = LatPIDController(
             agent=agent,
             config=self.config["latitudinal_controller"],
-            steering_boundary=steering_boundary
+            steering_boundary=self.steering_boundary
+        )
+        self.lat_limited_pid_controller = LatPIDController(
+            agent=agent,
+            config=self.config["latitudinal_controller"],
+            steering_boundary=(-0.05, 0.05)
         )
         self.logger = logging.getLogger(__name__)
 
     def run_in_series(self, next_waypoint: Transform, **kwargs) -> VehicleControl:
-        throttle = self.long_pid_controller.run_in_series(next_waypoint=next_waypoint,
+        if next_waypoint.location.z > -30 and next_waypoint.location.z < 40:
+            throttle = self.long_limited_pid_controller.run_in_series(next_waypoint=next_waypoint,
                                                           target_speed=kwargs.get("target_speed", self.max_speed))
-        steering = self.lat_pid_controller.run_in_series(next_waypoint=next_waypoint)
-        if (abs(steering) > 0.1 and Vehicle.get_speed(self.agent.vehicle) > 40) or (abs(steering) > 0.05 and Vehicle.get_speed(self.agent.vehicle) > 80 and throttle > 0):
+        else:
+            throttle = self.long_pid_controller.run_in_series(next_waypoint=next_waypoint,
+                                                              target_speed=kwargs.get("target_speed", self.max_speed))
+        
+        if next_waypoint.location.z > 8 and next_waypoint.location.z < 22 and next_waypoint.location.x < 220 and next_waypoint.location.x > -400:
+            steering = self.lat_limited_pid_controller.run_in_series(next_waypoint=next_waypoint)
+        else:
+            steering = self.lat_pid_controller.run_in_series(next_waypoint=next_waypoint)
+        
+        if (abs(steering) >= 0.05 and Vehicle.get_speed(self.agent.vehicle) > 80):
             throttle = -1
+        # elif abs(steering) > 0.1:
+        #     steering = steering/4
         return VehicleControl(throttle=throttle, steering=steering)
 
     @staticmethod

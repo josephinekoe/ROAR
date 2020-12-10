@@ -98,10 +98,6 @@ class SimpleWaypointFollowingLocalPlanner(LocalPlanner):
         # redefine closeness level based on speed
         self.set_closeness_threhold(self.closeness_threshold_config)
 
-        curr_vel = self.agent.vehicle.velocity
-        timestep = 0.05
-        future_point = vehicle_transform.location + Location(x=curr_vel.x * timestep, y=curr_vel.y * timestep, z=0)
-
         # get current waypoint
         curr_closest_dist = float("inf")
         while True:
@@ -124,7 +120,6 @@ class SimpleWaypointFollowingLocalPlanner(LocalPlanner):
         control: VehicleControl = self.controller.run_in_series(next_waypoint=target_waypoint)
         self.logger.debug(f"\n"
                           f"Curr Transform: {self.agent.vehicle.transform}\n"
-                          f"Future Point: {future_point}\n"
                           f"Target Location: {target_waypoint.location}\n"
                           f"Control: {control} | Speed: {Vehicle.get_speed(self.agent.vehicle)}\n")
         return control
