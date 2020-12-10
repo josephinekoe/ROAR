@@ -35,7 +35,7 @@ class PIDController(Controller):
         throttle = self.long_pid_controller.run_in_series(next_waypoint=next_waypoint,
                                                           target_speed=kwargs.get("target_speed", self.max_speed))
         steering = self.lat_pid_controller.run_in_series(next_waypoint=next_waypoint)
-        if abs(steering) > 0.05 and Vehicle.get_speed(self.agent.vehicle) > 80 and throttle > 0:
+        if (abs(steering) > 0.1 and Vehicle.get_speed(self.agent.vehicle) > 40) or (abs(steering) > 0.05 and Vehicle.get_speed(self.agent.vehicle) > 80 and throttle > 0):
             throttle = -1
         return VehicleControl(throttle=throttle, steering=steering)
 
